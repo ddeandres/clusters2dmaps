@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# number of jobs
+# number of jobs is slightly greater than 150... it is regions/step + regions%step.
 regions=324
-njobs=50
+njobs=5
 step=$(($regions / $njobs))
 echo generating X-ray maps using the following parameters
 

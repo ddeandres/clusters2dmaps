@@ -22,10 +22,8 @@ Use_Lra = True # use less rotations
 stn = np.int32(sys.argv[1])
 edn = np.int32(sys.argv[2])
 
-if Use_Lra:
-    RAs = np.loadtxt('/home2/weiguang/data/SZ/ML/Less_rotations.txt',dtype=np.int32)
-else:
-    RAs = np.loadtxt('/home2/weiguang/data/SZ/ML/More_rotations.txt',dtype=np.int32)
+
+RAs = np.loadtxt('29_rotations.txt',dtype=np.int32)
 
 selecth=np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.npy')
 #HID M200 Rid
@@ -59,8 +57,12 @@ for lp in np.arange(stn,edn):
         print(j,s,hid)
         snapname = 'snap_'+str(s)
         #print(snapname)
-        #ds = yt.load(path+Simun+cname+snapname, field_spec="my_def")
+        #ds = yt.load(path+Simun+cname+snapname, field_spec="my_def") # it can also be done using yt
         snapfile = path+Simun+cname+snapname
+        
+        head=readsnapsgl(path+Simun+cname+snapname,'HEAD')
+        if head.Redshift<0:
+            head.Redshift = 0.0000
 
         # load the data 
         pos = readsnapsgl(snapfile, 'POS ', ptype=1)
@@ -99,7 +101,7 @@ for lp in np.arange(stn,edn):
         #------------    
         # Rotations
         #------------
-        
+        ra = 0
         for RA in RAs:
             rot = rotate_data(pos_inside,RA)[0]
             mask = np.where((rot[:,0]<=rr)&(rot[:,0]>=-rr)&
@@ -124,9 +126,11 @@ for lp in np.arange(stn,edn):
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,
                                   "AHF Halo ID: "+str(hid), 
+                                  "Simulation redshift: " + str(head.Redshift)[:6],
                                   "log M_200 = "+str(np.log10(halo[idg[0],3]))[:6]+" Msun/h",
                                   "R_200 = "+str(rr)[:6]+" kpc/h"))
             
+            ra+=1
  
 
     # et voila
