@@ -115,7 +115,7 @@ for lp in np.arange(stn,edn):  #all regions
             # print("projecting photons to %s" % proj_direc)
             #pj = pymsz.TT_model(simd, npixel=np.int32(2*rr*1.2*head.Time/head.Hubbleparam/10.+0.5), axis=proj_direc, redshift=0.1, AR=5.252134578)
             # increase to 2 times
-            pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=8,sph_kernel='wendland4',zthick=rr)
+            pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=8,sph_kernel='wendland4',zthick=rr,Memreduce=True)
             pj.write_fits_image(outcat + snapname + "-TT" + "-cl-" + str(hid) + "-ra-" + str(ra) + ".fits", 
                                 overwrite=True, comments=("Simulation Region: " + clnum,
                                                           "AHF Halo ID: "+str(hid), 

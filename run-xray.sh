@@ -2,7 +2,7 @@
 
 # number of jobs is slightly greater than 150... it is regions/step + regions%step
 regions=324
-njobs=150
+njobs=24
 step=$(($regions / $njobs))
 echo generating X-ray maps using the following parameters
 
@@ -17,4 +17,4 @@ for i in `seq 1 $step $regions`;
     
     done
 
-python3 generate-xray-maps.py 323 325 > log323-update 2> log323-update &
+python3 generate-xray-maps.py 313 325 > log313-update 2> log313-update &

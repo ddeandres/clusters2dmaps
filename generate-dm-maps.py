@@ -122,7 +122,7 @@ for lp in np.arange(stn,edn):
             # Save data
             #------------
             write_fits_image(img,
-                             outcat + snapname + "-DM" + "-cl-" + str(hid) + "-ra-"+str(RA[0])+"-"+str(RA[1])+"-"+str(RA[2])+ ".fits",
+                             outcat + snapname + "-DM" + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,
                                   "AHF Halo ID: "+str(hid), 
