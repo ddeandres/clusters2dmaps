@@ -1,4 +1,4 @@
-#!/bin/bash
+:#!/bin/bash
 
 # number of jobs is slightly greater than 150... it is regions/step + regions%step
 regions=324

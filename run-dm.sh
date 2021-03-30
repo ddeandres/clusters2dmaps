@@ -15,6 +15,7 @@ for i in `seq 1 $step $regions`;
     
     python3 generate-dm-maps.py $i $(( i + $step )) > log$i-update 2> log$i-update &
     
+    
     done
 
 python3 generate-dm-maps.py 321 325 > log321-update 2> log321-update &
