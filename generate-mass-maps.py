@@ -33,7 +33,8 @@ selecth=np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.np
 # Open data
 #------------
 
-particle = [0]
+particle = 1
+particle_name = 'DM'
 
 # particles = [0,1,4]
 # [gas,DM,star]
@@ -92,14 +93,14 @@ for lp in np.arange(stn,edn):
             raise ValueError('Halo not find.... ',lp,hid)
         
         # apply mask
-        masks = []
-        for pos in positions:
-            mask2= np.where((pos[:,0]<=cc[0]+2*rr)&(pos[:,0]>=cc[0]-2*rr)&
-                    (pos[:,1]<=cc[1]+2*rr)&(pos[:,1]>=cc[1]-2*rr)&
-                    (pos[:,2]<=cc[2]+2*rr)&(pos[:,2]>=cc[2]-2*rr))
-            masks.append(mask2)
+    
+        mask2= np.where((pos[:,0]<=cc[0]+2*rr)&(pos[:,0]>=cc[0]-2*rr)&
+                (pos[:,1]<=cc[1]+2*rr)&(pos[:,1]>=cc[1]-2*rr)&
+                (pos[:,2]<=cc[2]+2*rr)&(pos[:,2]>=cc[2]-2*rr))
+      
 
         pos_inside = pos[mask2]
+        mass_inside = mass[mask2]
         pos_centered = pos_inside
         
         #center the data to be rotated
@@ -107,7 +108,9 @@ for lp in np.arange(stn,edn):
         pos_inside[:,1] = pos_inside[:,1]-cc[1]
         pos_inside[:,2] = pos_inside[:,2]-cc[2]
         
+       
         
+        print(mass.shape)
         #------------    
         # Rotations
         #------------
@@ -118,21 +121,22 @@ for lp in np.arange(stn,edn):
                     (rot[:,1]<=rr)&(rot[:,1]>=-rr)&
                     (rot[:,2]<=rr)&(rot[:,2]>=-rr))
             rot = rot[mask]
-            
+            w = mass_inside[mask]
+            #print(w.shape)
             #------------    
             # Create the 2D projection
             #------------
             N = 640
             x = rot[:, 0] 
             y = rot[:,1] 
-            img,xedges,yedges = np.histogram2d(x,y,bins=(N,N),weights = mass)
+            img,xedges,yedges = np.histogram2d(x,y,bins=(N,N),weights = w)
             img = img.T
             
             #------------    
             # Save data
             #------------
             write_fits_image(img,
-                             outcat + snapname + "-DM" + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
+                             outcat + snapname + "-M"+ particle_name + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,
                                   "AHF Halo ID: "+str(hid), 
