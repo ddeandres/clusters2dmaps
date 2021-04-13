@@ -33,7 +33,7 @@ edn = np.int32(sys.argv[2])
 
 # rotation angles 0-180, 30
 
-RAs = np.loadtxt('29_rotations.txt')
+RAs = np.loadtxt('29_rotations.txt') # or more rotations...
 
 selecth=np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.npy')
 #HID M200 Rid
