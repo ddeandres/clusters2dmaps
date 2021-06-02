@@ -32,6 +32,8 @@ selecth=np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.np
 #------------    
 # Open data
 #------------
+particle = 1
+particle_name = 'DM'
 
 for lp in np.arange(stn,edn):
     clnum='0000'+str(lp)
