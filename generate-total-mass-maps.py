@@ -6,7 +6,7 @@
 
 import os, sys, glob
 import numpy as np
-from utils import rotate_data, readsnapsgl, write_fits_image,plot_cluster
+from utils import rotate_data, readsnapsgl, write_fits_image,plot_cluster,mass_profile
 from astropy.cosmology import FlatLambdaCDM 
 
 Code='GadgetX' # the simulation code
@@ -20,6 +20,8 @@ Use_Lra = True # use less rotations
 # two arguments given to the function, the first and the last region
 
 
+stn = np.int32(sys.argv[1])
+edn = np.int32(sys.argv[2])
 
 RAs = np.loadtxt('29_rotations.txt',dtype=np.int32)
 
@@ -118,7 +120,7 @@ for lp in np.arange(stn,edn):
 
 
                 mask_sphere = indices_inside(pos_inside,rr)
-                print('MASA 3D:',np.log10(mass_inside[mask_sphere].sum()*1e10))
+                #print('MASA 3D:',np.log10(mass_inside[mask_sphere].sum()*1e10))
                 Ms = Ms + mass_inside[mask_sphere].sum()
                 print(np.log10(halo[idg[0],3]))
 
@@ -147,7 +149,7 @@ for lp in np.arange(stn,edn):
                 import matplotlib.pyplot as plt
                 plt.plot(np.arange(320),np.log10(M_profile))
 
-                print('MASA 2D = ',np.log10(img.sum()*1e10))
+                #print('MASA 2D = ',np.log10(img.sum()*1e10))
                 print(np.log10(halo[idg[0],3]))
                 print(hid)
                 print(cc)
@@ -170,14 +172,15 @@ for lp in np.arange(stn,edn):
 
             
             write_fits_image(img,
-                             outcat + snapname + "-M"+ particle_name + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
+                             outcat + snapname + "-Mtotal-" + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,
                                   "AHF Halo ID: "+str(hid), 
                                   "Simulation redshift: " + str(head.Redshift)[:6],
                                   "log M_200 = "+str(np.log10(halo[idg[0],3]))[:6]+" Msun/h",
-                                  "R_200 = "+str(rr)[:6]+" kpc/h"),
+                                  "R_200 = "+str(rr)[:6]+" kpc/h",
                                   "log M_200 cil = "+str(np.log10(M_profile[-1]))[:6])
+                            )
             
             ra+=1
 
