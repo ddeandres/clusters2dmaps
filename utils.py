@@ -794,4 +794,27 @@ def rotation_matrix(axis):
     
     return Rxyz
 
+def c_mask(img,radius=None,center=None ):
+    
+    h, w =  img.shape
+    
+    if center is None: # use the middle of the image
+        center = (int(w/2), int(h/2))
+    if radius is None: # use the smallest distance between the center and image walls
+        radius = min(center[0], center[1], w-center[0], h-center[1])
+    
+    Y, X = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+
+    mask = dist_from_center <= radius
+    return mask
+
+def mass_profile(img):
+    M = []
+    for i in range(int(len(img)/2)):
+        mask = c_mask(img,radius=i)
+        M.append(img[mask].sum())
+    return np.array(M)*1e10 # this factors to account for units M_{sun}h^{-1}
+
+
 

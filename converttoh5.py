@@ -7,6 +7,7 @@ from astropy.io import fits
 from utils import plot_cluster
 import cv2
 import h5py
+from tqdm import tqdm
 
 new_resolution = int(128)
 
@@ -64,7 +65,7 @@ M_200 = []
 hids_list = []
 selecth = np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.npy')
 
-for lp in range(1,325):
+for lp in tqdm(range(1,325)):
     print('reading data region =' , lp)
     idr = np.where(np.int32(selecth[:,2]+0.1)==lp)[0]
     if len(idr)<1:
@@ -121,7 +122,7 @@ print('shape dm : ', images_dm.shape)
 print('shape M_200: ',M_200.shape)
 
 h5_path = path + "h5files/"
-df = h5py.File(h5_path+'128.h5', 'w')
+df = h5py.File(h5_path+'128_star.h5', 'w')
 df.create_dataset('Xray', data = images_xr)
 df.create_dataset('SZ',data = images_sz)
 df.create_dataset('DM',data = images_dm)
