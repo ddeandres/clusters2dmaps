@@ -743,7 +743,7 @@ def write_fits_image(img,fname, comments="None", overwrite=False):
     else:
         raise ValueError("Do not accept this comments type! Please use str or list")
     hdu.writeto(fname, overwrite=overwrite)
- 
+    # finish this funtion
 
 
 def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
@@ -810,7 +810,7 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header.comments["RCVAL3"] = 'Real center Z of the data'
     hdu.header["UNITS"] = "kpc"
     hdu.header.comments["UNITS"] = 'Units for the RCVAL and PSIZE'
-    hdu.header["PIXVAL"] = "y parameter"
+    hdu.header["PIXVAL"] = "mass *h^{-1}*10^{10}"
     hdu.header.comments["PIXVAL"] = 'The y parameter for thermal SZ effect.'
    # hdu.header["ORAD"] = float(self.rr)
    # hdu.header.comments["ORAD"] = 'Rcut in physical for the image.'

@@ -6,7 +6,7 @@
 
 import os, sys, glob
 import numpy as np
-from utils import rotate_data, readsnapsgl, write_fits_image,plot_cluster,mass_profile
+from utils import rotate_data, readsnapsgl, write_fits_image_totalmass,plot_cluster,mass_profile
 from astropy.cosmology import FlatLambdaCDM 
 
 Code='GadgetX' # the simulation code
@@ -66,10 +66,10 @@ for lp in np.arange(stn,edn):
             head.Redshift = 0.0000
 
         # load the data 
-        particles = [0,1,4]
-        Ms = 0
+        particles = [0,1,4,5]
         ra = 0
         for RA in RAs:
+            Ms = 0
             imgs = []
             for particle in particles:
                 
@@ -169,24 +169,27 @@ for lp in np.arange(stn,edn):
             for i in range(3):
                 img_tot = img_tot+imgs[i]
 
-
-#             print('MASA 2D tot =',np.log10(img_tot.sum()*1e10))
-#             print('MASA 3D tot =', np.log10(Ms*1e10))
+            print('MASA AHF =', np.log10(halo[idg[0],3]))
+            print('MASA 2D tot =',np.log10(img_tot.sum()*1e10))
+            print('MASA 3D tot =', np.log10(Ms*1e10))
             M_profile = mass_profile(img_tot)
-#             print('MASA 2D CIL =',np.log10(M_profile[-1]))
+            print('MASA 2D CIL =',np.log10(M_profile[-1]))
 
             
-            write_fits_image(img_tot,
-                             outcat + snapname + "-Mtotal-" + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
+            write_fits_image_totalmass(img_tot,
+                             outcat + snapname + "-Mtotal-" + "cl-" + str(hid) + "-ra-" + str(ra) +".fits",
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,
-                                  "AHF Halo ID: "+str(hid), 
-                                  "Simulation redshift: " + str(head.Redshift)[:6],
-                                  "log M_200 = "+str(np.log10(halo[idg[0],3]))[:6]+" Msun/h",
-                                  "R_200 = "+str(rr)[:6]+" kpc/h",
-                                  "log M_200 cil = "+str(np.log10(M_profile[-1]))[:6])
-                            )
-            
+                                      "AHF Halo ID: "+str(hid), 
+                                      "Simulation redshift: " + str(head.Redshift)[:7],
+                                      "log M_200 = "+str(np.log10(halo[idg[0],3]))[:8]+" Msun/h",
+                                      "R_200 = "+str(rr)[:8]+" kpc/h",
+                                      "log M_200 cil = "+str(np.log10(M_profile[-1]))[:8],
+                                      "log M_200 3D = "+str(np.log10(Ms*1e10))[:8]
+                                      )
+                                      )
+                                       
+       
             ra+=1
 
             # end RA loop
