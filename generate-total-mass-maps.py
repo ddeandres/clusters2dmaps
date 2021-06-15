@@ -67,11 +67,12 @@ for lp in np.arange(stn,edn):
 
         # load the data 
         particles = [0,1,4]
-        imgs = []
         Ms = 0
         ra = 0
         for RA in RAs:
+            imgs = []
             for particle in particles:
+                
                 print('PARTICLE TYPE = ', particle)
                 pos = readsnapsgl(snapfile, 'POS ', ptype=particle)
                 mass = readsnapsgl(snapfile, 'MASS', ptype=particle)
@@ -120,10 +121,11 @@ for lp in np.arange(stn,edn):
 
 
                 mask_sphere = indices_inside(pos_inside,rr)
-                #print('MASA 3D:',np.log10(mass_inside[mask_sphere].sum()*1e10))
+                # write this to see the difference with respect to Mahf
+                print('MASA 3D:',np.log10(mass_inside[mask_sphere].sum()*1e10))
                 Ms = Ms + mass_inside[mask_sphere].sum()
                 print(np.log10(halo[idg[0],3]))
-
+                
                 #------------    
                 # Rotations
                 #------------
@@ -143,16 +145,19 @@ for lp in np.arange(stn,edn):
                 y = rot[:,1] 
                 img,xedges,yedges = np.histogram2d(x,y,bins=(N,N),weights=w)
                 img = img.T
-                plot_cluster(img)
+                #plot_cluster(img)
                 M_profile = mass_profile(img)
 
                 import matplotlib.pyplot as plt
-                plt.plot(np.arange(320),np.log10(M_profile))
+                #plt.plot(np.arange(320),np.log10(M_profile))
 
                 #print('MASA 2D = ',np.log10(img.sum()*1e10))
                 print(np.log10(halo[idg[0],3]))
                 print(hid)
                 print(cc)
+                
+                del pos
+                del mass
                 
                 # end particle loop
 
@@ -171,7 +176,7 @@ for lp in np.arange(stn,edn):
 #             print('MASA 2D CIL =',np.log10(M_profile[-1]))
 
             
-            write_fits_image(img,
+            write_fits_image(img_tot,
                              outcat + snapname + "-Mtotal-" + "-cl-" + str(hid) + "-ra-" + str(ra) +".fits",
                              overwrite= True, 
                              comments=("Simulation Region: " + clnum,

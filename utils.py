@@ -743,7 +743,98 @@ def write_fits_image(img,fname, comments="None", overwrite=False):
     else:
         raise ValueError("Do not accept this comments type! Please use str or list")
     hdu.writeto(fname, overwrite=overwrite)
-    
+ 
+
+
+def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
+    r"""
+    Generate a image by binning X-ray counts and write it to a FITS file.
+    Parameters
+    ----------
+    imagefile : string
+        The name of the image file to write.
+    comments : The comments in str will be put into the fit file header. Defualt: 'None'
+                It accepts str or list of str or tuple of str
+    overwrite : boolean, optional
+        Set to True to overwrite a previous file.
+    """
+    # import pyfits as pf
+    import astropy.io.fits as pf
+
+    if fname[-5:] != ".fits":
+        fname = fname + ".fits"
+
+
+    hdu = pf.PrimaryHDU(img)
+    hdu.header["SIMPLE"] = 'T'
+    hdu.header.comments["SIMPLE"] = 'conforms to FITS standard'
+    hdu.header["BITPIX"] = int(-32)
+    hdu.header.comments["BITPIX"] = '32 bit floating point'
+    hdu.header["NAXIS"] = int(2)
+   # hdu.header["NAXIS1"] = int(self.ydata.shape[0])
+   # hdu.header["NAXIS2"] = int(self.ydata.shape[1])
+    hdu.header["EXTEND"] = True
+    hdu.header.comments["EXTEND"] = 'Extensions may be present'
+    hdu.header["RADECSYS"] = 'ICRS    '
+    hdu.header.comments["RADECSYS"] = "International Celestial Ref. System"
+    hdu.header["CTYPE1"] = 'RA---TAN'
+    hdu.header.comments["CTYPE1"] = "Coordinate type"
+    hdu.header["CTYPE2"] = 'DEC--TAN'
+    hdu.header.comments["CTYPE2"] = "Coordinate type"
+    hdu.header["CUNIT1"] = 'deg     '
+    hdu.header.comments["CUNIT1"] = 'Units'
+    hdu.header["CUNIT2"] = 'deg     '
+    hdu.header.comments["CUNIT2"] = 'Units'
+   # hdu.header["CRPIX1"] = float(self.npl/2.0)
+   # hdu.header.comments["CRPIX1"] = 'X of reference pixel'
+    #hdu.header["CRPIX2"] = float(self.npl/2.0)
+   # hdu.header.comments["CRPIX2"] = 'Y of reference pixel'
+   # hdu.header["CRVAL1"] = float(self.sp[0])
+   # hdu.header.comments["CRVAL1"] = 'RA of reference pixel (deg)'
+   # hdu.header["CRVAL2"] = float(self.sp[1])
+   # hdu.header.comments["CRVAL2"] = 'Dec of reference pixel (deg)'
+   # hdu.header["CD1_1"] = -float(self.ar/3600.)
+   # hdu.header.comments["CD1_1"] = 'RA deg per column pixel'
+    hdu.header["CD1_2"] = float(0)
+    hdu.header.comments["CD1_2"] = 'RA deg per row pixel'
+    hdu.header["CD2_1"] = float(0)
+    hdu.header.comments["CD2_1"] = 'Dec deg per column pixel'
+   # hdu.header["CD2_2"] = float(self.ar/3600.)
+   # hdu.header.comments["CD2_2"] = 'Dec deg per row pixel'
+
+   # hdu.header["RCVAL1"] = float(self.cc[0])
+   # hdu.header.comments["RCVAL1"] = 'Real center X of the data'
+   # hdu.header["RCVAL2"] = float(self.cc[1])
+   # hdu.header.comments["RCVAL2"] = 'Real center Y of the data'
+   # hdu.header["RCVAL3"] = float(self.cc[2])
+   # hdu.header.comments["RCVAL3"] = 'Real center Z of the data'
+    hdu.header["UNITS"] = "kpc"
+    hdu.header.comments["UNITS"] = 'Units for the RCVAL and PSIZE'
+    hdu.header["PIXVAL"] = "y parameter"
+    hdu.header.comments["PIXVAL"] = 'The y parameter for thermal SZ effect.'
+   # hdu.header["ORAD"] = float(self.rr)
+   # hdu.header.comments["ORAD"] = 'Rcut in physical for the image.'
+   # hdu.header["REDSHIFT"] = float(self.red)
+   # hdu.header.comments["REDSHIFT"] = 'The redshift of the object being put to'
+   # hdu.header["PSIZE"] = float(self.pxs)
+   # hdu.header.comments["PSIZE"] = 'The pixel size in physical at simulation time'
+
+   # hdu.header["AGLRES"] = float(self.ar)
+   # hdu.header.comments["AGLRES"] = '\'observation\' angular resolution in arcsec'
+
+    hdu.header["ORIGIN"] = 'Software: DMML'
+    hdu.header.comments["ORIGIN"] = 'to be continued'
+    #hdu.header["VERSION"] = version.version  # get_property('__version__')
+    #hdu.header.comments["VERSION"] = 'Version of the software'
+    hdu.header["DATE-OBS"] = Time.now().tt.isot
+    if isinstance(comments, type([])) or isinstance(comments, type(())):
+        for j in range(len(comments)):
+            hdu.header["COMMENT"+str(j+1)] = comments[j]
+    elif isinstance(comments, type("")) or isinstance(comments, type('')):
+        hdu.header["COMMENT"] = comments
+    else:
+        raise ValueError("Do not accept this comments type! Please use str or list")
+    hdu.writeto(fname, overwrite=overwrite)
     
 #------------    
 # Open Fits 
