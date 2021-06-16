@@ -142,7 +142,7 @@ for lp in np.arange(stn,edn):
                                       "AHF Halo ID: "+str(hid), 
                                       "Simulation redshift: " + str(head.Redshift)[:6],
                                       "log M_200 = "+str(np.log10(halo[idg[0],3]))[:6]+" Msun/h",
-                                      "R_200 = "+str(rr)[:6]+" kpc/h")
+                                      "R_200 = "+str(rr)[:6]+" kpc/h"))
                                       
                              
             

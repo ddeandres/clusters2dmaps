@@ -77,9 +77,13 @@ for lp in np.arange(stn,edn):
                 pos = readsnapsgl(snapfile, 'POS ', ptype=particle)
                 mass = readsnapsgl(snapfile, 'MASS', ptype=particle)
                 print('path = ',snapfile)
+                print('POSITION VECTOR = ', pos.shape)
+                print('MASS VECTOR = ', mass.shape)
 
-
-
+                # it looks like there might be a bug in Weiguang's code to read Gatgetx data
+                if particle==1:
+                    if mass.shape==():
+                        mass = np.ones(pos.shape[0])*0.12691148
                 #------------    
                 # Cuts
                 #------------

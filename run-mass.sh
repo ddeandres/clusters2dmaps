@@ -13,9 +13,9 @@ echo step : $step
 for i in `seq 1 $step $regions`;
     do 
     
-    python3 generate-mass-maps.py $i $(( i + $step )) > log$i-update 2> log$i-update &
+    python3 generate-total-mass-maps.py $i $(( i + $step )) > log$i-update 2> log$i-update &
     
     
     done
 
-python3 generate-mass-maps.py 321 325 > log321-update 2> log321-update &
+python3 generate-total-mass-maps.py 321 325 > log321-update 2> log321-update &
