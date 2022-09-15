@@ -810,8 +810,8 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header.comments["RCVAL3"] = 'Real center Z of the data'
     hdu.header["UNITS"] = "kpc"
     hdu.header.comments["UNITS"] = 'Units for the RCVAL and PSIZE'
-    hdu.header["PIXVAL"] = "mass *h^{-1}*10^{10}"
-    hdu.header.comments["PIXVAL"] = 'The y parameter for thermal SZ effect.'
+    hdu.header["PIXVAL"] = "mass  1e10 Msun/h"
+   #hdu.header.comments["PIXVAL"] = 'The y parameter for thermal SZ effect.'
    # hdu.header["ORAD"] = float(self.rr)
    # hdu.header.comments["ORAD"] = 'Rcut in physical for the image.'
    # hdu.header["REDSHIFT"] = float(self.red)
@@ -823,7 +823,7 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header.comments["AGLRES"] = '\'observation\' angular resolution in arcsec'
 
     hdu.header["ORIGIN"] = 'Software: DMML'
-    hdu.header.comments["ORIGIN"] = 'to be continued'
+    hdu.header.comments["ORIGIN"] = 'Random software'
     #hdu.header["VERSION"] = version.version  # get_property('__version__')
     #hdu.header.comments["VERSION"] = 'Version of the software'
     hdu.header["DATE-OBS"] = Time.now().tt.isot

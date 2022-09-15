@@ -141,6 +141,7 @@ for lp in np.arange(stn,edn):
                 rot = rot[mask]
 
                 w = mass_inside[mask]
+                
                 #------------    
                 # Create the 2D projection
                 #------------
@@ -170,7 +171,7 @@ for lp in np.arange(stn,edn):
             # Save data=
             #------------
             img_tot = np.zeros(img.shape)
-            for i in range(3):
+            for i in range(len(particles)):
                 img_tot = img_tot+imgs[i]
 
             print('MASA AHF =', np.log10(halo[idg[0],3]))

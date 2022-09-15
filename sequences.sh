@@ -2,7 +2,7 @@
 
 # number of jobs is slightly greater than 150... it is regions/step + regions%step.
 regions=324
-njobs=100
+njobs=50
 step=$(($regions / $njobs))
 echo generating X-ray maps using the following parameters
 
@@ -13,6 +13,6 @@ echo step : $step
 for i in `seq 1 $step $regions`;
     do 
     
-    echo $i; 
+    echo $i $(( i + $step )); 
     
     done

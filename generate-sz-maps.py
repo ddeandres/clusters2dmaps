@@ -108,7 +108,8 @@ for lp in np.arange(stn,edn):  #all regions
         fixps = 640  # Maxi Number pixels per image refer to the massive clusters at z0.1
         angular = 5  # arcsec fixps/(head.Redshift+1) * cosmo.arcsec_per_kpc_proper(outred).value # need to change into physical
         #now we calculate the redshift to put this halo
-        outred = calc_z(fixps, angular, simd.cosmology['z'], rr)
+        outred = calc_z(fixps, angular, simd.cosmology['z'], rr) # the redshift is variable so that the imgs fill the whole image with the same angular resolution. See function calc_z.
+        
 #        f.write(str(outred)+'\n')
         ra =0
         for pd in RAs:  ##["x","y","z"]:
