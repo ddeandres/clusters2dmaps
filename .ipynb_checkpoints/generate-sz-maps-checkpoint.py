@@ -33,9 +33,12 @@ edn = np.int32(sys.argv[2])
 
 # rotation angles 0-180, 30
 
-RAs = np.loadtxt('29_rotations.txt')
+data_dir = '/data7/users/deandres/ML4/'
+
+RAs = np.loadtxt('29_rotations.txt') # or more rotations...
 
 selecth=np.load('/home2/weiguang/Project-300-Clusters/ML/Reselected_all_halos.npy')
+selecth = np.load(data_dir + 'halosML4.npy')
 #HID M200 Rid
 
 def calc_z(npx,ar,z,rr): #return redshift by pixels and angular resolution
@@ -57,7 +60,7 @@ for lp in np.arange(stn,edn):  #all regions
     # Check outputs
     outcat = cname + "/"
     if not os.path.exists(outcat):
-        os.mkdir(outcat)
+        os.mkdir(data_dir+outcat)
 
     idr=np.where(np.int32(selecth[:,2]+0.1)==lp)[0]
     if len(idr)<1:
@@ -70,14 +73,6 @@ for lp in np.arange(stn,edn):  #all regions
     st=0
     for j, s, hid in zip(idr, sn, Hids):
         snapname = 'snap_'+str(s)
-        #ff=fits.open(outcat + snapname + "-TT" + "-cl-" + str(hid) + "-ra-0-0-0.fits")
-        #if not np.isnan(ff[0].data.max()): # if there is a non value, we redo the image
-        #    ff.close()
-        #    continue 
-        #else:
-        #    ff.close()
-
-        #print('Updating ', lp, j, hid)
         if st!=s:
             st=s
             if ((lp == 10) and (snapname == 'snap_100')) or ((lp == 228) and (snapname == 'snap_110')):
@@ -105,18 +100,20 @@ for lp in np.arange(stn,edn):  #all regions
 #             outred = 0.1 + simd.cosmology['z']
 #         else:
 #             outred = simd.cosmology['z'] # use simulation redshift
-        fixps = 640  # Maxi Number pixels per image refer to the massive clusters at z0.1
+        fixps = 320  # Maxi Number pixels per image refer to the massive clusters at z0.1
         angular = 5  # arcsec fixps/(head.Redshift+1) * cosmo.arcsec_per_kpc_proper(outred).value # need to change into physical
         #now we calculate the redshift to put this halo
-        outred = calc_z(fixps, angular, simd.cosmology['z'], rr)
+        #outred = calc_z(fixps, angular, simd.cosmology['z'], rr) # the redshift is variable so that the imgs fill the whole image with the same angular resolution. See function calc_z.
+        
 #        f.write(str(outred)+'\n')
         ra =0
         for pd in RAs:  ##["x","y","z"]:
+            outred = np.random.random()*(0.1-0.03)+0.03 # redshift between 0.1 and 0.03 randomly distributed
             # print("projecting photons to %s" % proj_direc)
             #pj = pymsz.TT_model(simd, npixel=np.int32(2*rr*1.2*head.Time/head.Hubbleparam/10.+0.5), axis=proj_direc, redshift=0.1, AR=5.252134578)
             # increase to 2 times
-            pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=8,sph_kernel='wendland4',zthick=rr)
-            pj.write_fits_image(outcat + snapname + "-TT" + "-cl-" + str(hid) + "-ra-" + str(ra) + ".fits", 
+            pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=8,sph_kernel='wendland4',zthick=rr,Memreduce=True)
+            pj.write_fits_image(data_dir+outcat + snapname + "-TT" + "-cl-" + str(hid) + "-ra-" + str(ra) + ".fits", 
                                 overwrite=True, comments=("Simulation Region: " + clnum,
                                                           "AHF Halo ID: "+str(hid), 
                                                           "Simulation redshift: " + str(head.Redshift)[:6],

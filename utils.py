@@ -5,6 +5,8 @@ from os import fstat
 import matplotlib.pyplot as plt
 nmets = 11
 
+path = "/data7/users/deandres/newML2/"
+
 def plot_cluster(image,cmap='seismic'):
     fig = plt.figure(figsize=(10, 10))
     im = plt.imshow(image,cmap=cmap)
@@ -850,7 +852,7 @@ def read_xr(lp,hid,RA):
     region = 'NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
     s = str(hid)[:3]
     file = 'snap_{}-Athena-wfi-cl-{}-ra-{}-{}-{}.fits'.format(s,hid,RA[0],RA[1],RA[2])
-    print(RA)
+    #print(RA)
     data = fits.getdata(datapath_xr+region+file)
     return data
 
@@ -858,7 +860,7 @@ def read_sz(lp,hid,RA):
     region = 'NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
     s = str(hid)[:3]
     file = 'snap_{}-TT-cl-{}-ra-{}-{}-{}.fits'.format(s,hid,RA[0],RA[1],RA[2])
-    print(RA)
+    #print(RA)
     data = fits.getdata(datapath_sz+region+file)
     return data
 
@@ -866,7 +868,7 @@ def read_dm(lp,hid,RA):
     region = 'NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
     s = str(hid)[:3]
     file = 'snap_{}-DM-cl-{}-ra-{}-{}-{}.fits'.format(s,hid,RA[0],RA[1],RA[2])
-    print(RA)
+    #print(RA)
     data = fits.getdata(datapath_dm+region+file)
     return data
 
@@ -908,4 +910,120 @@ def mass_profile(img):
     return np.array(M)*1e10 # this factors to account for units M_{sun}h^{-1}
 
 
+def read_total_mass(lp,hid,RA):
+    region = 'total-mass/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Mtotal-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+
+def read_xr(lp,hid,RA):
+    region = 'X-ray/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Athena-wfi-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def read_xlum(lp,hid,RA):
+    region = 'xlum/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-XrayLuminosity-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def read_sz(lp,hid,RA):
+    region = 'SZ/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-TT-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def read_dm(lp,hid,RA):
+    region = 'DM/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-DM-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def read_gas(lp,hid,RA):
+    region = 'gas/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Mgas-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def read_star(lp,hid,RA):
+    region = 'star/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Mstar-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    return data
+
+def get_M2(lp,hid,RA):
+    region = 'DM/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-DM-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    hdul = fits.open(path+region+file)
+    M = np.float(hdul[0].header[-2][12:18])
+    return M
+
+def get_R2(lp,hid,RA):
+    region = 'DM/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-DM-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    hdul = fits.open(path+region+file)
+    header = hdul[0].header
+    #print(header[-3])
+    try:
+        M = float(header[-1][-13:-6])
+    except:
+        M = float(header[-1][-12:-6]) # in case the number is small  
+    return M
+
+def get_M3D(lp,hid,RA):
+    region = 'total-mass/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Mtotal-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    hdul = fits.open(path+region+file)
+    header = hdul[0].header
+    return float(header[-1][-8:])
+
+def get_MCIL(lp,hid,RA):
+    region = 'total-mass/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-Mtotal-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(path+region+file)
+    hdul = fits.open(path+region+file)
+    header = hdul[0].header
+    return float(header[-2][-8:])
+
+#-----------------------------------------------------------
+# COMPUTE THE CHI PARAMETER
+#-----------------------------------------------------------
+
+def chi(delta,fs):
+    return np.sqrt(2/((delta/0.1)**2+(fs/0.1)**2))
+
+
+#-----------------------------------------------------------
+# REBINING FUNCTION
+#-----------------------------------------------------------
+
+def rebin(a, shape):
+    # it works only when a.shape = n*shape, here n is a positive integer.
+    sh = shape[0],a.shape[0]//shape[0],shape[1],a.shape[1]//shape[1]
+    return a.reshape(sh).sum(-1).sum(1)
 
