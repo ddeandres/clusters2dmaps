@@ -4,6 +4,7 @@ import numpy as np
 from readsnapsgl import readsnapsgl
 from astropy.cosmology import FlatLambdaCDM 
 from astropy.io import fits
+import h5py 
 
 Code='GIZMO'
 path='/data7/users/weiguang/Gizmo-Simba/'
@@ -13,8 +14,8 @@ groupinfo=np.loadtxt("/home2/weiguang/Project-300-Clusters/Halo_mass_function_ma
 Simun = "simulation/"+Code+"/"
 
 
-stn = 1
-edn = 2
+stn = np.int32(sys.argv[1])
+edn = np.int32(sys.argv[2])
 
 # Gadget X     - GadgetMUSIC
 # 0.022 - 127  - 16 0.053
@@ -34,9 +35,9 @@ edn = 2
 # rotation angles 0-180, 30
 
 data_dir = '/data7/users/deandres/ML4/'
-save_dir = '/home2/deandres/clusters2dmaps/'
+save_dir = os.getcwd()+'/'
 
-RAs = np.loadtxt('29_rotations.txt') # or more rotations...
+RAs = np.loadtxt('/home2/deandres/clusters2dmaps/29_rotations.txt') # or more rotations...
 
 selecth = np.load(data_dir + 'halosML4.npy')
 
@@ -78,47 +79,64 @@ for lp in np.arange(stn,edn):  #all regions
             st=s
             if ((lp == 10) and (snapname == 'snap_100')) or ((lp == 228) and (snapname == 'snap_110')):
                 continue
-            f = h5py.File(path+cname+snapname, "r")
-            head = f['Header']
             
-            # head=readsnapsgl(path+cname+snapname,'HEAD')
-            
-            if head.attrs['Redshift']<0:
-                head.attrs['Redshift'] = 0.0000
+            try:
+                f = h5py.File(path+cname+snapname, "r")
 
-            halo = np.load('/home2/weiguang/Project-300-Clusters/Halo_mass_function_mass-difference/GIZMO/GS_Mass_snap_'+str(s)+'info.npy')
+                head = f['Header']
+
+                # head=readsnapsgl(path+cname+snapname,'HEAD')
+                redshift = head.attrs['Redshift']
+                if head.attrs['Redshift']<0:
+                    # careful do not rewrite head.attrs['Redshift'] permission denied...
+                    redshift = 0.0000
+
+                halo = np.load('/home2/weiguang/Project-300-Clusters/Halo_mass_function_mass-difference/GIZMO/GS_Mass_snap_'+str(s)+'info.npy')
+            except:
+                print('cannot open file', lp,s,hid)
             ##ReginIDs HIDs  HosthaloID Mvir(4) Xc(6)   Yc(7)   Zc(8)  Rvir(12) fMhires(38) cNFW (42) Mgas200 M*200 M500  R500 fgas500 f*500
-        idg=np.where((halo[:,0]==lp) & (halo[:,1]==hid))[0]
-        if len(idg) == 1:
-            cc=halo[idg[0],4:7]; rr = halo[idg[0],7]
-        else:
-            raise ValueError('Halo not find.... ',lp,hid)
             
-        # load simulation data
-        simd = pymsz.load_data(path+cname+snapname, snapshot=True, center=cc, radius=rr*np.sqrt(2), restrict_r=True)
-        cosmo= FlatLambdaCDM(simd.cosmology['h']*100,simd.cosmology['omega_matter'])
+        try: 
+            idg=np.where((halo[:,0]==lp) & (halo[:,1]==hid))[0]
+            if len(idg) == 1:
+                cc=halo[idg[0],4:7]; rr = halo[idg[0],7]
+            else:
+                raise ValueError('Halo not find.... ',lp,hid)
+
+            # load simulation data
+
+            simd = pymsz.load_data(path+cname+snapname, snapshot=True, center=cc, radius=rr*np.sqrt(2), restrict_r=True)
 
 
-        #setup for outputs
-#         if simd.cosmology['z'] <= 0.05:
-#             outred = 0.1 + simd.cosmology['z']
-#         else:
-#             outred = simd.cosmology['z'] # use simulation redshift
-        fixps = 640  # Maxi Number pixels per image refer to the massive clusters at z0.1
-        angular = 5  # arcsec fixps/(head.Redshift+1) * cosmo.arcsec_per_kpc_proper(outred).value # need to change into physical
-        #now we calculate the redshift to put this halo
-        #outred = calc_z(fixps, angular, simd.cosmology['z'], rr) # the redshift is variable so that the imgs fill the whole image with the same angular resolution. See function calc_z.
-        #now we calculate the redshift to put this halo
-        outred = calc_z(fixps, angular, simd.cosmology['z'], rr)
-#        f.write(str(outred)+'\n')
-        ra =0
-#        f.write(str(outred)+'\n')
-        ra =0
-        for pd in RAs:  ##["x","y","z"]:
-            pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=8,sph_kernel='wendland4',zthick=rr,Memreduce=True)
-            pj.write_fits_image(save_dir+outcat + snapname + "-TT" + "-cl-" + str(hid) + "-ra-" + str(ra) + ".fits", 
-                                overwrite=True, comments=("Simulation Region: " + clnum,
-                                           "R_200 = "+str(rr)[:6]+" kpc/h") )
-            
-            ra+=1
-     
+
+
+            cosmo= FlatLambdaCDM(simd.cosmology['h']*100,simd.cosmology['omega_matter'])
+
+
+            #setup for outputs
+    #         if simd.cosmology['z'] <= 0.05:
+    #             outred = 0.1 + simd.cosmology['z']
+    #         else:
+    #             outred = simd.cosmology['z'] # use simulation redshift
+            fixps = 640  # Maxi Number pixels per image refer to the massive clusters at z0.1
+            angular = 5  # arcsec fixps/(head.Redshift+1) * cosmo.arcsec_per_kpc_proper(outred).value # need to change into physical
+            #now we calculate the redshift to put this halo
+            #outred = calc_z(fixps, angular, simd.cosmology['z'], rr) # the redshift is variable so that the imgs fill the whole image with the same angular resolution. See function calc_z.
+            #now we calculate the redshift to put this halo
+            outred = calc_z(fixps, angular, simd.cosmology['z'], rr)
+
+            ra =0
+            for pd in RAs:  ##["x","y","z"]:
+                pj = pymsz.TT_model(simd, npixel=640, axis=pd, redshift=outred, AR=angular,Ncpu=4,sph_kernel='wendland4',zthick=rr,Memreduce=True)
+                pj.write_fits_image(save_dir+outcat + snapname[:8] + "-TT" + "-cl-" + str(hid) + "-ra-" + str(ra) + ".fits", 
+                                    overwrite=True, comments=("Simulation Region: " + clnum,
+                                                              "AHF Halo ID: "+str(hid), 
+                                                              "Simulation redshift: " + str(redshift)[:6],
+                                                              "mock redshift" + str(outred)[:6],
+                                                               "R_200 = "+str(rr)[:6]+" kpc/h",
+                                                               "log M_200 = "+str(np.log10(halo[idg[0],3]))[:6]+" Msun/h",
+                                                             ) 
+                                   )
+                ra+=1
+        except:
+                print('cannot open file', lp,s,hid)exit

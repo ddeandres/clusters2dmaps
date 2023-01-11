@@ -3,9 +3,11 @@ import numpy as np
 from struct import unpack
 from os import fstat
 import matplotlib.pyplot as plt
+import scipy
 nmets = 11
 
 path = "/data7/users/deandres/newML2/"
+gizmo_path = "/data7/users/deandres/newML2/GIZMO/"
 
 def plot_cluster(image,cmap='seismic'):
     fig = plt.figure(figsize=(10, 10))
@@ -797,9 +799,9 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header.comments["CRVAL2"] = 'Dec of reference pixel (deg)'
    # hdu.header["CD1_1"] = -float(self.ar/3600.)
    # hdu.header.comments["CD1_1"] = 'RA deg per column pixel'
-    hdu.header["CD1_2"] = float(0)
+    hdu.header["CD1_2"] = 'see pixel area'
     hdu.header.comments["CD1_2"] = 'RA deg per row pixel'
-    hdu.header["CD2_1"] = float(0)
+    hdu.header["CD2_1"] = 'see pixel area'
     hdu.header.comments["CD2_1"] = 'Dec deg per column pixel'
    # hdu.header["CD2_2"] = float(self.ar/3600.)
    # hdu.header.comments["CD2_2"] = 'Dec deg per row pixel'
@@ -810,9 +812,9 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header.comments["RCVAL2"] = 'Real center Y of the data'
    # hdu.header["RCVAL3"] = float(self.cc[2])
    # hdu.header.comments["RCVAL3"] = 'Real center Z of the data'
-    hdu.header["UNITS"] = "kpc"
+    hdu.header["UNITS"] = "kpc, see pixel area"
     hdu.header.comments["UNITS"] = 'Units for the RCVAL and PSIZE'
-    hdu.header["PIXVAL"] = "mass  1e10 Msun/h"
+    hdu.header["PIXVAL"] = "mass 1e10 Msun/h divided by pixel area"
    #hdu.header.comments["PIXVAL"] = 'The y parameter for thermal SZ effect.'
    # hdu.header["ORAD"] = float(self.rr)
    # hdu.header.comments["ORAD"] = 'Rcut in physical for the image.'
@@ -824,8 +826,8 @@ def write_fits_image_totalmass(img,fname, comments="None", overwrite=False):
    # hdu.header["AGLRES"] = float(self.ar)
    # hdu.header.comments["AGLRES"] = '\'observation\' angular resolution in arcsec'
 
-    hdu.header["ORIGIN"] = 'Software: DMML'
-    hdu.header.comments["ORIGIN"] = 'Random software'
+    hdu.header["ORIGIN"] = 'Software: Daniel de Andres software'
+    hdu.header.comments["ORIGIN"] = 'Daniel de Andres'
     #hdu.header["VERSION"] = version.version  # get_property('__version__')
     #hdu.header.comments["VERSION"] = 'Version of the software'
     hdu.header["DATE-OBS"] = Time.now().tt.isot
@@ -943,6 +945,15 @@ def read_sz(lp,hid,RA):
     data = fits.getdata(path+region+file)
     return data
 
+def read_sz_gizmo(lp,hid,RA):
+    region = 'SZ_29rot/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-TT-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    data = fits.getdata(gizmo_path+region+file)
+    return data
+
+
 def read_dm(lp,hid,RA):
     region = 'DM/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
     s = str(hid)[:3]
@@ -976,6 +987,15 @@ def get_M2(lp,hid,RA):
     M = np.float(hdul[0].header[-2][12:18])
     return M
 
+def get_M2_gizmo(lp,hid,RA):
+    region = 'SZ_29rot/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-TT-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    hdul = fits.open(gizmo_path+region+file)
+    M = float(hdul[0].header[-1][12:18])
+    return M
+
 def get_R2(lp,hid,RA):
     region = 'DM/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
     s = str(hid)[:3]
@@ -989,6 +1009,22 @@ def get_R2(lp,hid,RA):
     except:
         M = float(header[-1][-12:-6]) # in case the number is small  
     return M
+
+def get_R2_gizmo(lp,hid,RA):
+
+    region = 'SZ/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
+    s = str(hid)[:3]
+    file = 'snap_{}-TT-cl-{}-ra-{}.fits'.format(s,hid,RA)
+    #print(RA)
+    hdul = fits.open(gizmo_path+region+file)
+    header = hdul[0].header
+    #print(header[-3])
+    try:
+        M = float(header[-1][-13:-6])
+    except:
+        M = float(header[-1][-12:-6]) # in case the number is small  
+    return M
+
 
 def get_M3D(lp,hid,RA):
     region = 'total-mass/NewMDCLUSTER_{}/'.format(str(lp).zfill(4))
@@ -1025,5 +1061,20 @@ def chi(delta,fs):
 def rebin(a, shape):
     # it works only when a.shape = n*shape, here n is a positive integer.
     sh = shape[0],a.shape[0]//shape[0],shape[1],a.shape[1]//shape[1]
+    return a.reshape(sh).mean(-1).mean(1)
+
+def rebin_mean(a, shape):
+    # it works only when a.shape = n*shape, here n is a positive integer.
+    sh = shape[0],a.shape[0]//shape[0],shape[1],a.shape[1]//shape[1]
+    return a.reshape(sh).mean(-1).mean(1)
+
+def rebin_sum(a, shape):
+    # it works only when a.shape = n*shape, here n is a positive integer.
+    sh = shape[0],a.shape[0]//shape[0],shape[1],a.shape[1]//shape[1]
     return a.reshape(sh).sum(-1).sum(1)
+
+def gaussian_smoothing(img,filter=20):
+    fwhm2sig = 1./(2.*np.sqrt(2.*np.log(2.)))
+    x = scipy.ndimage.filters.gaussian_filter(img,filter*fwhm2sig)
+    return x
 
